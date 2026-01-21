@@ -1,4 +1,4 @@
-reg_c1()                               
+reg_c1()
 {
   NAME=$1
   BASE=$2
@@ -11,7 +11,7 @@ reg_c1()
 }
 
 reg_c2()
-
+{
   NAME=$1
   BASE=$2
   OFF=$3
@@ -34,8 +34,8 @@ seg_c1()
   RES_M=$(($RES_S & 0xFFFF))
 
   printf "%-30s  = 0x%08X, " $NAME $RES_M
-
 }
+
 seg_c2()
 {
   NAME=$1
@@ -48,6 +48,42 @@ seg_c2()
   RES_S=$(($RES >> $SHIFT))
   RES_M=$(($RES_S & 0xFFFF))
   printf "%-30s    = 0x%08X\n" $NAME $RES_M
+}
+
+check_bit()
+{
+  NAME=$1
+  BASE=$2
+  OFF=$3
+  BIT=$4
+
+  MASK=$((1 << $BIT))
+  V1=$(($BASE | $OFF))
+  RES=$(devmem $V1)
+  RES_M=$(($RES & $MASK))
+  if [ $RES_M -gt 0 ]; then
+    printf "%-30s  Enabled\n" $NAME
+  else
+    printf "%-30s  Disabled\n" $NAME
+  fi
+}
+
+check_bit_i()
+{
+  NAME=$1
+  BASE=$2
+  OFF=$3
+  BIT=$4
+
+  MASK=$((1 << $BIT))
+  V1=$(($BASE | $OFF))
+  RES=$(devmem $V1)
+  RES_M=$(($RES & $MASK))
+  if [ $RES_M -gt 0 ]; then
+    printf "%-30s  Disabled\n" $NAME
+  else
+    printf "%-30s  Enabled\n" $NAME
+  fi
 }
 
 xsi_dbg()
@@ -92,9 +128,41 @@ xsi_dbg()
   reg_c2 RX_BC_DROP_CNT $BASE 0x204
   reg_c1 RX_MC_DROP_CNT $BASE 0x208
   reg_c2 RX_TOTAL_DROP_CNT $BASE 0x20C
+
+  check_bit TX_FLOW_CTRL $BASE 0x0 5
+  check_bit RX_FLOW_CTRL $BASE 0x0 4
+  check_bit_i TX_MBI_ITF $BASE 0xCC 0
+  check_bit_i TX_MPI_ITF $BASE 0xCC 1
+  check_bit_i RX_MBI_ITF $BASE 0xCC 2
+  check_bit_i RX_MPI_ITF $BASE 0xCC 3
 }
 
-xsi_dbg ae 0x1fa60000
-#xsi_dbg pcie0 0x1fa70000
-#xsi_dbg pcie1 0x1fa71000
-xsi_dbg usb3 0x1fa80000
+case $1 in
+        "7523_ae")
+                xsi_dbg ae 0x1fa60000
+                ;;
+        "7523_pcie0")
+                xsi_dbg pcie0 0x1fa70000
+                ;;
+        "7523_pcie1")
+                xsi_dbg pcie1 0x1fa71000
+                ;;
+        "7523_usb3")
+                xsi_dbg usb3 0x1fa80000
+                ;;
+        "7581_ae")
+                xsi_dbg ae 0x1fa08000
+                ;;
+        "7581_eth")
+                xsi_dbg eth 0x1fa09000
+                ;;
+        "7581_pcie0")
+                xsi_dbg pcie0 0x1fa04000
+                ;;
+        "7581_pcie1")
+                xsi_dbg pcie1 0x1fa05000
+                ;;
+        "7581_usb3")
+                xsi_dbg usb3 0x1fa07000
+                ;;
+esac
