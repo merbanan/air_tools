@@ -150,16 +150,16 @@ case $1 in
         "7523_usb3")
                 xsi_dbg usb3 0x1fa80000
                 ;;
-        "7581_ae")
+        "7581_ae" | "7583_ae")
                 xsi_dbg ae 0x1fa08000
                 ;;
-        "7581_eth")
+        "7581_eth" | "7583_eth")
                 xsi_dbg eth 0x1fa09000
                 ;;
-        "7581_pcie0")
+        "7581_pcie0" | "7583_pcie")
                 xsi_dbg pcie0 0x1fa04000
                 ;;
-        "7581_pcie1")
+        "7581_pcie1" | "7583_usb")
                 xsi_dbg pcie1 0x1fa05000
                 ;;
         "7581_usb3")
