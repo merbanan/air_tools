@@ -86,6 +86,27 @@ check_bit_i()
   fi
 }
 
+check_range()         
+{                  
+  NAME=$1                  
+  BASE=$2                   
+  OFF=$3                                   
+  SBIT=$4                             
+  EBIT=$5
+  MASK=0   
+  for i in $(seq $SBIT $EBIT); do
+    TMASK=$((1 << i));
+    MASK=$(($MASK + $TMASK))
+  done   
+         
+  V1=$(($BASE | $OFF))
+  RES=$(devmem $V1)  
+  RES_M=$(($RES & $MASK))
+  RES=$(($RES_M >> $SBIT))
+  printf "%-30s  = 0x%08X\n" $NAME $RES 
+}                          
+
+
 xsi_dbg()
 {
   NAME=$1
@@ -135,6 +156,8 @@ xsi_dbg()
   check_bit_i TX_MPI_ITF $BASE 0xCC 1
   check_bit_i RX_MBI_ITF $BASE 0xCC 2
   check_bit_i RX_MPI_ITF $BASE 0xCC 3
+  check_range TX_FRAG_LEN $BASE 0x0 17 21
+  check_range RX_FRAG_LEN $BASE 0x0 22 26
 }
 
 case $1 in
